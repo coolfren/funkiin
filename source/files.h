@@ -1,0 +1,6 @@
+#include "gf_png.h"
+#include "logo_png.h"
+#include "freakyMenu_mp3.h"
+#include "confirm_raw.h"
+#include "enter_png.h"
+#include "fnf_ttf.h"
