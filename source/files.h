@@ -2,13 +2,19 @@
 #ifndef FILES_
 #define FILES_
 //title screen
+#include "bf_png.h"
 #include "gf_png.h"
+#include "dad_png.h"
+
 #include "logo_png.h"
+#include "notes_png.h"
 
 //All of the music
 #include "freakyMenu_mp3.h"
+//bopeebo
 #include "bopeebo_mp3.h"
 #include "bopeebo_raw.h"
+#include "stage_png.h"
 //All of the sound effects
 #include "confirm_raw.h"
 #include "scroll_raw.h"

@@ -3,14 +3,17 @@
 #include <ogc/lwp.h>
 #include <time.h>
 #include <mp3player.h>
+#include "note.h"
 #include "sound.h"
 #include "utils.h"
 #include "files.h"
 #define center _screenWidth/2
-
-ML_Image spriteData, logoData, enterData, bgData, fpData, cursorData, storyData;
-ML_Sprite girlfriend, logo, enter, bg, fp, cursor, story;
+#define BF_OFFSET_NOTES 330
+#define NOTES_SIZE sizeof(notes)/sizeof(notes[0])
+ML_Image enemystrumsdata[8], playerstrumsdata[8], gfData, bfData, dadData, logoData, enterData, bgData, fpData, cursorData, storyData, stageData, noterData;
+ML_Sprite enemystrums[8], playerstrums[8], girlfriend, boyfriend, dad, logo, enter, bg, fp, cursor, story, stage, note;
 ML_Font font;
+struct Note notes[1024];
 
 lwp_t soundthread;
 
@@ -25,7 +28,7 @@ enum states{
     TITLE,
     MENU,
     PLAY
-} curstate = TITLE;
+} curstate = PLAY;
 
 lwp_t waitthread;
 bool fading;
@@ -36,8 +39,74 @@ void switchState(){
 			curstate = MENU;
 			break;
 		case MENU:
+			ML_StopMP3();
+			playPCM(bopeebo_raw, bopeebo_raw_size, NULL);
+			ML_Wait(10);
+			playSound(bopeebo_mp3, bopeebo_mp3_size);
 			curstate = PLAY;
 			break;
+	}
+}
+
+void generateNotes2(){
+	unsigned long chart[1024] = {0,2,3,1,2,3,1,2,3,1,2,3,2,2};
+	for(int i=0; i<sizeof(chart)/sizeof(chart[0]); i++){
+		ML_CloneSprite(&note, &notes[i].note);
+		switch(chart[i]){
+			case 0:
+				notes[i].type = PURPLE;
+				break;
+			case 1:
+				notes[i].type = BLUE;
+				break;
+			case 2:
+				notes[i].type = GREEN;
+				break;
+			case 3:
+				notes[i].type = RED;
+				break;
+		}
+	}
+}
+
+void generateNotes(bool player){
+	if(player){
+		for(int i=0; i<4; i++){
+			ML_CloneSprite(&note, &enemystrums[i]);
+			switch(i){
+				case 0:
+					ML_RotateSprite(&enemystrums[i], -90, false);
+					break;
+				case 1:
+					ML_RotateSprite(&enemystrums[i], 180, false);
+					break;
+				case 2:
+					ML_RotateSprite(&enemystrums[i], 0, false);
+					break;
+				case 3:
+					ML_RotateSprite(&enemystrums[i], 90, false);
+					break;
+			}
+		}
+	}
+	else{
+		for(int i=0; i<4; i++){
+			ML_CloneSprite(&note, &playerstrums[i]);
+			switch(i){
+				case 0:
+					ML_RotateSprite(&playerstrums[i], -90, false);
+					break;
+				case 1:
+					ML_RotateSprite(&playerstrums[i], 180, false);
+					break;
+				case 2:
+					ML_RotateSprite(&playerstrums[i], 0, false);
+					break;
+				case 3:
+					ML_RotateSprite(&playerstrums[i], 90, false);
+					break;
+			}
+		}
 	}
 }
 
@@ -52,7 +121,9 @@ void wait(int seconds){
 bool hayawouldbeproud = false;
 bool funny = false;
 u8 selection = 0;
-
+u8 enemyHealth = 0;
+u8 bfHealth = 0;
+unsigned long rollinginthedeep = 0;
 int main(int argc, char **argv) 
 {
 	timer_t elapsed;
@@ -69,7 +140,16 @@ int main(int argc, char **argv)
 	//ML_SplashScreen(); // You can delete this instruction, but please let it if you can :)
 	ML_EnableTextureAntiAliasing();
 	_aa_enabled = true;
-	ML_LoadSpriteFromBuffer(&spriteData, &girlfriend, gf_png, 100, 100); // <- you must have a texture.png in ARGB (32 bits) at the root of your card so that you can test this example
+	ML_LoadSpriteFromBuffer(&noterData, &note, notes_png, 100, 100);
+	ML_SetSpriteScale(&note, 0.7, 0.8);
+	ML_InitTile(&note, 100, 100);
+	generateNotes(false);
+	generateNotes(true);
+	generateNotes2();
+	ML_LoadSpriteFromBuffer(&stageData, &stage, stage_png, 100, 100);
+	ML_LoadSpriteFromBuffer(&gfData, &girlfriend, gf_png, 100, 100); // <- you must have a texture.png in ARGB (32 bits) at the root of your card so that you can test this example
+	ML_LoadSpriteFromBuffer(&dadData, &dad, dad_png, 100, 100);
+	ML_LoadSpriteFromBuffer(&bfData, &boyfriend, bf_png, 100, 100); // <- you must have a texture.png in ARGB (32 bits) at the root of your card so that you can test this example	
 	ML_LoadSpriteFromBuffer(&logoData, &logo, logo_png, 0, 0);
 	ML_LoadSpriteFromBuffer(&enterData, &enter, enter_png, 300, 100);
 	ML_LoadSpriteFromBuffer(&bgData, &bg, bg_png, 0, 0);
@@ -81,8 +161,12 @@ int main(int argc, char **argv)
 
 	u8 opac = 255;
 	playSound(freakyMenu_mp3, freakyMenu_mp3_size);
-	//playSound(bopeebo_mp3, bopeebo_mp3_size);
-	//playPCM(bopeebo_raw, bopeebo_raw_size, NULL);
+	if(curstate == PLAY){
+		ML_StopMP3();
+		playSound(bopeebo_mp3, bopeebo_mp3_size);
+		ML_Wait(5);
+		playPCM(bopeebo_raw, bopeebo_raw_size, NULL);
+	}
 	float timing = 0;
 	char base[33];
 	int funnynumbers[5];
@@ -164,7 +248,47 @@ int main(int argc, char **argv)
 				playPCM(scroll_raw, scroll_raw_size, NULL);
 				selection++;
 			}
+			if(Wiimote[0].Newpress.A) {
+				playPCM(confirm_raw, confirm_raw_size, NULL);
+				LWP_CreateThread(&waitthread, wait, 2, NULL, 0, 0);
+			}
 		}
+		if(curstate == PLAY){
+			ML_DrawSpriteFull(&stage, 0, -50, 0, 1.3, 1.3, 255);
+			ML_DrawSpriteFull(&girlfriend, 0, -30, 0, 0.7, 0.8, 255);
+			ML_DrawSpriteFull(&dad, -25, 55, 0, 1, 1.1, 255);
+			ML_DrawSpriteFull(&boyfriend, 250, 120, 0, 0.7, 0.8, 255);
+			if(Wiimote[0].Newpress.Up){
+				for(int i=0; i<NOTES_SIZE; i++){
+					if(ML_IsCollisionEx(&enemystrums[2], &notes[i].note)) bfHealth++;
+				}
+			}
+			if(Wiimote[0].Newpress.Down) {
+				for(int i=0; i<NOTES_SIZE; i++){
+					if(ML_IsCollisionEx(&enemystrums[1], &notes[i].note)) bfHealth++;
+				}
+			}
+			if(Wiimote[0].Newpress.Left){
+				for(int i=0; i<NOTES_SIZE; i++){
+					if(ML_IsCollisionEx(&enemystrums[0], &notes[i].note)) bfHealth++;
+				}
+			}
+			if(Wiimote[0].Newpress.Right) {
+				for(int i=0; i<NOTES_SIZE; i++){
+					if(ML_IsCollisionEx(&enemystrums[3], &notes[i].note)) bfHealth++;
+				}
+			}
+			for(int i=0; i<4; i++){
+				ML_DrawTile(&enemystrums[i], (i * 67), 0, 0);
+				ML_DrawTile(&playerstrums[i], BF_OFFSET_NOTES + (i * 67), 0, 0);
+			}
+			for(int i=0; i<NOTES_SIZE; i++){
+				ML_DrawTile(&notes[i].note, notes[i].type * 67, (i*60) - rollinginthedeep, notes[i].type);
+			}
+			rollinginthedeep += 4;
+		}
+		ML_DrawRect(100, 300, 100, 20, 0xFF0000FF, true);
+		ML_DrawRect(200, 300, 100 + (bfHealth*5), 20, 0x00FF00FF, true);
 		ML_DrawRect(0, fadey, 720, 720, createRGBA(0, 0, 0, 255), true);
 		if(fading){
 			if(fadey > 1000) fading = false;
