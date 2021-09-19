@@ -10,6 +10,7 @@
 #define center _screenWidth/2
 #define BF_OFFSET_NOTES 330
 #define arrsize(arr) sizeof(arr)/sizeof(arr[0])
+#define HIT_INCREMENT 6
 ML_Image enemystrumsdata[8], playerstrumsdata[8], gfData, bfData, dadData, logoData, enterData, bgData, fpData, cursorData, storyData, stageData, noterData, barData, bfiData, dadiData;
 ML_Sprite enemystrums[8], playerstrums[8], girlfriend, boyfriend, dad, logo, enter, bg, fp, cursor, story, stage, note, bar, bficon, dadicon;
 ML_Font font, hf;
@@ -31,7 +32,7 @@ enum states{
     TITLE,
     MENU,
     PLAY
-} curstate = PLAY;
+} curstate = TITLE;
 
 lwp_t waitthread, camerathread;
 
@@ -45,7 +46,7 @@ void switchState(){
 		case MENU:
 			ML_StopMP3();
 			playPCM(bopeebo_raw, bopeebo_raw_size, NULL);
-			ML_Wait(10);
+			ML_Wait(5);
 			playSound(bopeebo_mp3, bopeebo_mp3_size);
 			curstate = PLAY;
 			break;
@@ -53,7 +54,7 @@ void switchState(){
 }
 
 void generateNotes2(){//unsigned long
-	u32 chart[1024][4] = {{0,2,0,false},{600,3,450,false},{1050,3,600,false},{2400,2,0,true},{3000,3,450,true},{3450,3,600,true},{4800,1,300,false},{5400,0,300,false},{6000,3,300,false},{7200,1,300,true},{7800,0,300,true},{8400,3,300,true},{9600,1,150,false},{10200,3,0,false},{10500,0,0,false},{10800,1,450,false},{12000,1,150,true},{12600,3,0,true},{12900,0,0,true},{13200,1,450,true},{14400,3,0,false},{14700,1,0,false},{15300,0,0,false},{15600,2,300,false},{16800,3,0,true},{17100,1,0,true},{17700,0,0,true},{18000,2,300,true},{19200,0,0,false},{19500,3,0,false},{19800,1,750,false},{21600,0,0,true},{21900,3,0,true},{22200,1,750,true},{24000,1,0,false},{24300,3,0,false},{24600,0,750,false},{26700,3,0,true},{27000,0,750,true},{26400,1,0,true},{28800,2,0,false},{29100,3,0,false},{29400,0,1050,false},{31200,2,0,true},{31500,3,0,true},{31800,0,1050,true},{33600,0,0,false},{33900,3,0,false},{34500,2,0,false},{34800,1,450,false},{36000,0,0,true},{36300,3,0,true},{36900,2,0,true},{37200,1,450,true},{38400,2,450,false},{39000,3,300,false},{39600,0,450,false},{40800,2,450,true},{41400,3,300,true},{42000,0,450,true},{43200,1,0,false},{43800,2,0,false},{44400,1,0,false},{44550,1,0,false},{44700,1,0,false},{45000,2,0,false},{45600,1,0,true},{46200,2,0,true},{46800,1,0,true},{46950,1,0,true},{47100,1,0,true},{47400,2,0,true},{48000,2,450,false},{48600,3,300,false},{49200,0,450,false},{50400,2,450,true},{51000,3,300,true},{51600,0,450,true},{52800,3,1650,false},{55200,3,1650,true},{57600,2,0,false},{57900,3,0,false},{58200,0,1050,false},{60000,2,0,true},{60300,3,0,true},{60600,0,1050,true},{62100,6,0,true},{62400,0,0,false},{62700,3,0,false},{63300,2,0,false},{63600,1,450,false},{64500,6,0,false},{64800,0,0,true},{65100,3,0,true},{65700,2,0,true},{66000,1,450,true},{67200,2,0,false},{67500,3,0,false},{67800,0,0,false},{68100,2,0,false},{68400,1,450,false},{69600,2,0,true},{69900,3,0,true},{70200,0,0,true},{70500,2,0,true},{70800,1,450,true},{71700,6,0,true},{72000,0,0,false},{72300,3,0,false},{72900,2,0,false},{73200,1,450,false},{74100,6,0,false},{74400,0,0,true},{74700,3,0,true},{75300,2,0,true},{75600,1,450,true},{0, 0, 0, false}};
+	u32 chart[1024][4] = {{0,2,0,false},{600,3,450,false},{1050,3,600,false},{2400,2,0,true},{3000,3,450,true},{3450,3,600,true},{4800,1,300,false},{5400,0,300,false},{6000,3,300,false},{7200,1,300,true},{7800,0,300,true},{8400,3,300,true},{9600,1,150,false},{10200,3,0,false},{10500,0,0,false},{10800,1,450,false},{12000,1,150,true},{12600,3,0,true},{12900,0,0,true},{13200,1,450,true},{14400,3,0,false},{14700,1,0,false},{15300,0,0,false},{15600,2,300,false},{16800,3,0,true},{17100,1,0,true},{17700,0,0,true},{18000,2,300,true},{19200,0,0,false},{19500,3,0,false},{19800,1,750,false},{21600,0,0,true},{21900,3,0,true},{22200,1,750,true},{24000,1,0,false},{24300,3,0,false},{24600,0,750,false},{26700,3,0,true},{27000,0,750,true},{26400,1,0,true},{28800,2,0,false},{29100,3,0,false},{29400,0,1050,false},{31200,2,0,true},{31500,3,0,true},{31800,0,1050,true},{33600,0,0,false},{33900,3,0,false},{34500,2,0,false},{34800,1,450,false},{36000,0,0,true},{36300,3,0,true},{36900,2,0,true},{37200,1,450,true},{38400,2,450,false},{39000,3,300,false},{39600,0,450,false},{40800,2,450,true},{41400,3,300,true},{42000,0,450,true},{43200,1,0,false},{43800,2,0,false},{44400,1,0,false},{44550,1,0,false},{44700,1,0,false},{45000,2,0,false},{45600,1,0,true},{46200,2,0,true},{46800,1,0,true},{46950,1,0,true},{47100,1,0,true},{47400,2,0,true},{48000,2,450,false},{48600,3,300,false},{49200,0,450,false},{50400,2,450,true},{51000,3,300,true},{51600,0,450,true},{52800,3,1650,false},{55200,3,1650,true},{57600,2,0,false},{57900,3,0,false},{58200,0,1050,false},{60000,2,0,true},{60300,3,0,true},{60600,0,1050,true},{62100,6,0,true},{62400,0,0,false},{62700,3,0,false},{63300,2,0,false},{63600,1,450,false},{64500,6,0,false},{64800,0,0,true},{65100,3,0,true},{65700,2,0,true},{66000,1,450,true},{67200,2,0,false},{67500,3,0,false},{67800,0,0,false},{68100,2,0,false},{68400,1,450,false},{69600,2,0,true},{69900,3,0,true},{70200,0,0,true},{70500,2,0,true},{70800,1,450,true},{71700,6,0,true},{72000,0,0,false},{72300,3,0,false},{72900,2,0,false},{73200,1,450,false},{74100,6,0,false},{74400,0,0,true},{74700,3,0,true},{75300,2,0,true},{75600,1,450,true}};
 	for(int i=0; i<sizeof(chart)/sizeof(chart[0]); i++){
 		ML_CloneSprite(&note, &notes[i].note);
 		switch(chart[i][1]){
@@ -142,6 +143,7 @@ void docamerashit(){
 	//callback();
 }
 
+float mustime;
 bool hayawouldbeproud = false;
 bool funny = false;
 u8 selection = 0;
@@ -264,7 +266,6 @@ int main(int argc, char **argv)
 					playPCM(confirm_raw, confirm_raw_size, NULL);
 					funny = true;
 					opac=255;
-					ML_DrawRect(0, fadey, 720, 720, createRGBA(0, 0, 0, opac), true);
 				}
 			};
 		}
@@ -291,11 +292,12 @@ int main(int argc, char **argv)
 			ML_DrawSpriteFull(&girlfriend, 0  + camera.x, -30 + camera.y, 0, 0.7, 0.8, 255);
 			ML_DrawSpriteFull(&dad, -25 + camera.x, 55 + camera.y, 0, 1, 1.1, 255);
 			ML_DrawSpriteFull(&boyfriend, 250 + camera.x, 120 + camera.y, 0, 0.7, 0.8, 255);
+			mustime++;
 			if(Wiimote[0].Newpress.Up){
 				for(int i=0; i<arrsize(notes); i++){
 					if(ML_IsCollisionEx(&playerstrums[2], &notes[i].note)) {
 						ML_SetSpriteAlpha(&notes[i].note, 0);
-						bfHealth++;
+						bfHealth += HIT_INCREMENT;
 						}
 				}
 			}
@@ -303,7 +305,7 @@ int main(int argc, char **argv)
 				for(int i=0; i<arrsize(notes); i++){
 					if(ML_IsCollisionEx(&playerstrums[1], &notes[i].note)) {
 						ML_SetSpriteAlpha(&notes[i].note, 0);
-						bfHealth++;
+						bfHealth += HIT_INCREMENT;
 						}
 				}
 			}
@@ -311,7 +313,7 @@ int main(int argc, char **argv)
 				for(int i=0; i<arrsize(notes); i++){
 					if(ML_IsCollisionEx(&playerstrums[0], &notes[i].note)) {
 						ML_SetSpriteAlpha(&notes[i].note, 0);
-						bfHealth++;
+						bfHealth += HIT_INCREMENT;
 					}
 				}
 			}
@@ -319,7 +321,7 @@ int main(int argc, char **argv)
 				for(int i=0; i<arrsize(notes); i++){
 					if(ML_IsCollisionEx(&playerstrums[3], &notes[i].note)) {
 						ML_SetSpriteAlpha(&notes[i].note, 0);
-						bfHealth++;
+						bfHealth += HIT_INCREMENT;
 					}
 				}
 			}
@@ -330,24 +332,25 @@ int main(int argc, char **argv)
 			for(int i=0; i<arrsize(notes); i++){
 				u8 notedecide;
 				switch(notes[i].type){case PURPLE: notedecide = 0; break; case BLUE: notedecide = 1 * 67; break; case GREEN: notedecide = 2 * 67; break; case RED: notedecide = 3 * 67; break;}
-				ML_DrawTile(&notes[i].note, (notes[i].musthit?BF_OFFSET_NOTES:0) + notedecide, (notes[i].strumtime/4) - rollinginthedeep, notes[i].type);//notes[i].type
+				ML_DrawTile(&notes[i].note, (notes[i].musthit?BF_OFFSET_NOTES:0) + notedecide, ((notes[i].strumtime / 3) - (mustime * 5)) - 500, notes[i].type);//notes[i].type (-5 - (playerstrums[i].height / 2)) - ((mustime - notes[i].strumtime) * 1)
 			}
 			rollinginthedeep += 4;
 			ML_DrawSpriteFull(&bar, 20, 400, 0, 0.8, 0.9, 255);
 			ML_DrawRect(130, 405, 380, 10, 0x00FF00FF, true);
-			ML_DrawRect(130, 405, 190, 10, 0xFF0000FF, true); // + (bfHealth*5)  - bfHealth380
-			ML_DrawSpriteXY(&bficon, 380, 360);
-			ML_DrawSpriteXY(&dadicon, 260, 360);
+			ML_DrawRect(130, 405, 290 - (bfHealth), 10, 0xFF0000FF, true); // + (bfHealth*5)  - bfHealth380
+			ML_DrawSpriteXY(&bficon, 380 - (bfHealth - 100), 360);
+			ML_DrawSpriteXY(&dadicon, 260 - (bfHealth - 100), 360);
 			ML_DrawRect(0, fadey, 720, 720, createRGBA(0, 0, 0, 255), true);
 			ML_DrawText(&hf, 430, 420, "Score: ");
-			if(bfHealth<=0) bfHealth=0;
-			if(bfHealth>=200) bfHealth=100;
+			if(bfHealth<=-100) bfHealth=-100;
+			if(bfHealth>=290) bfHealth=290;
 		}
 
 		if(fading){
 			if(fadey > 1000) fading = false;
 			else fadey += 7;
 		}
+		ML_DrawRect(0, fadey, 720, 720, createRGBA(0, 0, 0, 255), true);
 		ML_RotateSprite(&cursor, Wiimote[0].Orient.Roll, 0);
 		ML_MoveSpriteWiimoteIR(&cursor, 0);
 		ML_DrawSprite(&cursor);
