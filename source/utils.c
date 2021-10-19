@@ -9,6 +9,6 @@ unsigned long createRGBA(int r, int g, int b, int a)
 int countarray(int array[])
 {
     for(int i = 0; i<sizeof(array); i++){
-        if(array[i] = 0) return i - 1;
+        if(array[i] == 0) return i - 1;
     }
 }
