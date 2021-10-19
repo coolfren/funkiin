@@ -9,7 +9,7 @@
 #include "files.h"
 #define center _screenWidth/2
 #define BF_OFFSET_NOTES 330
-#define arrsize(arr) sizeof(&arr)
+#define arrsize(arr) countarray(arr)
 #define HIT_INCREMENT 6
 ML_Image enemystrumsdata[8], playerstrumsdata[8], gfData, bfData, dadData, logoData, enterData, bgData, fpData, cursorData, storyData, stageData, noterData, barData, bfiData, dadiData;
 ML_Sprite enemystrums[8], playerstrums[8], girlfriend, boyfriend, dad, logo, enter, bg, fp, cursor, story, stage, note, bar, bficon, dadicon;
