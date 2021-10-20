@@ -1,6 +1,5 @@
-
-#ifndef FILES_
-#define FILES_
+#ifndef FILES_H
+#define FILES_H
 //characters
 #include "bf_png.h"
 #include "bf_idle_png.h"
@@ -16,6 +15,11 @@
 #include "wii_logo_png.h"
 #include "notes_png.h"
 
+//main menu
+#include "storymode_png.h"
+#include "freeplay_png.h"
+#include "bg_png.h"
+
 //All of the music
 #include "freakyMenu_mp3.h"
 //bopeebo
@@ -25,12 +29,10 @@
 //All of the sound effects
 #include "confirm_raw.h"
 #include "scroll_raw.h"
+//fonts
+#include "vcr_ttf.h"
+#include "fnf_ttf.h"
 
 #include "enter_png.h"
-#include "fnf_ttf.h"
-#include "vcr_ttf.h"
-#include "bg_png.h"
-#include "freeplay_png.h"
 #include "cursor_png.h"
-#include "storymode_png.h"
 #endif
